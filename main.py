@@ -11,6 +11,10 @@ app.config['DEBUG'] = False
 def index():
     return flask.render_template('index.html')
 
+@app.route('/banner/<username>')
+def foo(username):
+	return "User {}".format(username)
+
 @app.errorhandler(404)
 def page_not_found(e):
     return 'Sorry, nothing at this URL.', 404
