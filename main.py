@@ -28,7 +28,7 @@ class UserBadge(object):
 		#configure square user image
 		self.tb_size = 75
 		self.tb_x_offset = self.padding
-		self.tb_y_offset = self.padding + 30
+		self.tb_y_offset = self.padding + 40
 
 		#configure size of flag
 		self.flag_width = 16
@@ -43,7 +43,14 @@ class UserBadge(object):
 		self.username_height = 35
 
 		#write the code abbey label to the top
-		code_abbey_logo = Image
+		code_abbey_logo = Image.open('static/icon.png')
+		(logo_width, logo_height) = code_abbey_logo.size
+		self.img.paste(code_abbey_logo, (self.padding, self.padding, self.padding+logo_width, self.padding + logo_height))
+
+		font = ImageFont.truetype("fonts/dejavu/DejaVuSerifCondensed-BoldItalic.ttf", 26)
+		font_color = (0,153,0)
+		ca_title_x_offset = 2*self.padding + logo_width
+		self.draw.text((ca_title_x_offset, 10 ), 'CodeAbbey.com', font = font, fill = font_color)
 
 	def AddUserName(self, name, rank = "default"):
 		#parameters to adjust name location and appearance
