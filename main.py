@@ -100,33 +100,6 @@ def prepare_banner(username):
 	else:
 		return "hello world"
 
-
-@app.route("/simple.png")
-def randgradient():
-	img = Image.new("RGB", (300,300), "#FFFFFF")
-	draw = ImageDraw.Draw(img)
-	flag = Image.open('flags/us.gif')
-
-	r,g,b = randint(0,255), randint(0,255), randint(0,255)
-	dr = (randint(0,255) - r)/300.
-	dg = (randint(0,255) - g)/300.
-	db = (randint(0,255) - b)/300.
-	for i in range(300):
-		r,g,b = r+dr, g+dg, b+db
-		draw.line((i,0,i,300), fill=(int(r),int(g),int(b)))
-
-
-	#paste in the country flag
-	(flag_x,flag_y) = flag.size
-	img.paste(flag, (20, 20, 20+flag_x , 20+flag_y))
-
-	f = cStringIO.StringIO()
-	img.save(f, "PNG")
-
-	response = flask.make_response(f.getvalue())
-	response.headers['Content-Type'] = 'image/png'
-	return response
-
 @app.route('/robots.txt', methods=['GET'])
 def deny_all():
 	response = flask.make_response(open('static/robots.txt').read())
