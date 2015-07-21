@@ -89,13 +89,13 @@ class UserBadge(object):
 
 		#we are using this font just to test since it looks different
 		#than system font, so we can know when it is working
-		unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSerifCondensed-BoldItalic.ttf", name_font_size)
+		unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSans-Bold.ttf", name_font_size)
 		while True:
 			#dynamically determine the offset to have a relative placement in image
 			(predicted_width, predicted_height) = unicode_font.getsize(name)
 			if(predicted_width > self.username_allowed_width) and name_font_size > 12:
 				name_font_size -= 1
-				unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSerifCondensed-BoldItalic.ttf", name_font_size)
+				unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSans-Bold.ttf", name_font_size)
 			else:
 				#check for case where we have to truncate
 				
@@ -140,20 +140,29 @@ class UserBadge(object):
 
 	def AddNumSolved(self, num_solved = 0):
 		#error case num solved is ?
-		text = 'solved: '
-		if num_solved > 0:
-			#hold field with to max of 4 chars
-			text += str(num_solved)[-4:]
-
-		unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSans.ttf", 10)
 		solved_xo = self.padding
 		solved_yo = int(self.height * 0.45)
-		self.draw.text((solved_xo, solved_yo), text, font = unicode_font, fill = (32,32,32))
+		text = 'solved: '
+		unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSans.ttf", 10)
+		(tmp, _) = unicode_font.getsize(text)
+		self.draw.text((solved_xo, solved_yo), text, font = unicode_font, fill = (96,96,96))
+		end_xo = solved_xo + tmp
+		if num_solved > 0:
+			#hold field with to max of 4 chars
+			text = str(num_solved)[-4:]
+			unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSans.ttf", 10)
+			self.draw.text((end_xo, solved_yo), text, font = unicode_font, fill = (0,0,0))
 
 
 	def AddPosition(self, position):
 				#error case num solved is ?
+		solved_xo = self.padding + 65
+		solved_yo = int(self.height * 0.45)		
 		text = 'rank: '
+		unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSans.ttf", 10)
+		(tmp, _) = unicode_font.getsize(text)
+		self.draw.text((solved_xo, solved_yo), text, font = unicode_font, fill = (96,96,96))
+		end_xo = solved_xo + tmp
 		if position > 0:
 			#switch to scientific notation if rank is large enough
 			if position > 999999:
@@ -166,12 +175,11 @@ class UserBadge(object):
 			else:
 				position = str(position)
 			#hold field with to max of 4 chars
-			text += position[-10:]
+			text = position[-10:]
 
 		unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSans.ttf", 10)
-		solved_xo = self.padding + 65
-		solved_yo = int(self.height * 0.45)
-		self.draw.text((solved_xo, solved_yo), text, font = unicode_font, fill = (32,32,32))
+
+		self.draw.text((end_xo, solved_yo), text, font = unicode_font, fill = (0,0,0))
 
 
 
