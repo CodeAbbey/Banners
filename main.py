@@ -101,8 +101,6 @@ def prepare_banner(username):
 		except KeyError as e:
 			user_badge.AddNumSolved(-1)
 
-		#add a dummy user pic
-		user_badge.AddUserImage(url = None)
 		#at end prepare the file
 		f = user_badge.RenderToBuffer()
 
