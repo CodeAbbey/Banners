@@ -70,10 +70,7 @@ class UserBadge(object):
 		 'AE', 'AD', 'AG', 'AF', 'IQ', 'VI', 'IS', 'IR', 'AM', 'AL', 'AO', 'AN', 'AQ', 
 		 'AS', 'AR', 'AU', 'AT', 'IO', 'IN', 'TZ', 'AZ', 'IE', 'ID', 'UA', 'QA', 'MZ'])
 		if country in iso_country_codes:
-			flag_name = 'flags/' + country.lower() + '.gif'
-			flag_file = Image.open(flag_name)
-			(flag_x,flag_y) = flag_file.size
-			self.img.paste(flag_file, (375, 45, 375+flag_x , 45+flag_y))
+			self.flag_name = 'flags/' + country.lower() + '.gif'
 
 	def AddUserImage(self, url = None):
 		#if there is not any images, use a default
@@ -95,10 +92,17 @@ class UserBadge(object):
 			pass
 
 	def AddNumSolved(self, num_solved = 0):
-		assert(0 <= num_solved)
-
+		#error case num solved is ?
+		if num_solved < 0:
+			pass
 
 	def RenderToBuffer(self):
+		#render all of variable position boxes here at once
+		flag_file = Image.open(self.flag_name)
+		(flag_x,flag_y) = flag_file.size
+		self.img.paste(flag_file, (375, 45, 375+flag_x , 45+flag_y))
+
+		#create buffer for output
 		f = cStringIO.StringIO()
 		self.img.save(f, "PNG")
 		return f
@@ -162,6 +166,11 @@ def prepare_banner(username):
 			pass
 		else:
 			user_badge.AddUserName(badge_username)
+
+		try:
+			solved = data['solved']
+		except KeyError as e:
+			user_badge.AddNumSolved(-1)
 
 		#add a dummy user pic
 		user_badge.AddUserImage(url = None)
