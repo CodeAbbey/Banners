@@ -1,12 +1,10 @@
-from PIL import Image, ImageDraw, ImageFont
 import cStringIO
+import json
+from PIL import Image, ImageDraw, ImageFont
+import string
 import StringIO
 import urllib
 import urllib2
-import json
-import string
-
-from random import randint
 
 class RankCodeAbbey(object):
 	PEASANT = 0
@@ -21,7 +19,6 @@ class RankCodeAbbey(object):
 	THE_DOCTOR = 9
 	FROST_ENCHANTER = 10
 	CARDINAL = 11
-
 
 class UserBadge(object):
 	def __init__(self, x_size, y_size, rank = 'default'):
@@ -44,7 +41,6 @@ class UserBadge(object):
 			'default': (0, 0, 0)
 			}
 
-		print rank 
 		if RankCodeAbbey.PEASANT <= rank <= RankCodeAbbey.CARDINAL:
 			background_filename = 'static/rank' + str(rank) + '.png'
 		else:
@@ -59,7 +55,6 @@ class UserBadge(object):
 			self.draw = ImageDraw.Draw(self.img)
 			#set this to default for use by the other derived fields
 			self.rank = 'default'
-
 
 		self.padding = 5
 		#configure square user image
@@ -78,7 +73,6 @@ class UserBadge(object):
 		self.username_allowed_width = self.width - self.name_x_offset - self.flag_spacing - self.flag_width - self.padding - self.tb_size - self.padding
 		self.username_baseline_offset = self.height * 0.35
 		self.username_height = 35
-
 
 	def AddUserName(self, name, rank = "default"):
 		#parameters to adjust name location and appearance
@@ -107,13 +101,13 @@ class UserBadge(object):
 						name = name[:-1]
 					else:
 						break
+
 				self.username_width = predicted_width
 				self.username_height = predicted_height
 				break
 
 		#compute the y offset to keep constant baseline position
-		#self.name_y_offest = max([0, (self.username_baseline_offset - predicted_height)])
-		
+		# self.name_y_offest = max([0, (self.username_baseline_offset - predicted_height)])
 		self.draw.text((self.name_x_offset, self.name_y_offest), name, font = unicode_font, fill = name_font_color)
 	
 	def AddCountryFlag(self, country):
@@ -154,9 +148,8 @@ class UserBadge(object):
 			unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSans.ttf", 10)
 			self.draw.text((end_xo, solved_yo), text, font = unicode_font, fill = (0,0,0))
 
-
 	def AddPosition(self, position):
-				#error case num solved is ?
+		#error case num solved is ?
 		solved_xo = self.padding + 65
 		solved_yo = int(self.height * 0.45)		
 		text = 'rank: '
@@ -175,14 +168,11 @@ class UserBadge(object):
 				position = string.replace(position, '+', '')
 			else:
 				position = str(position)
+
 			#hold field with to max of 4 chars
 			text = position[-10:]
-
 		unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSans.ttf", 10)
-
 		self.draw.text((end_xo, solved_yo), text, font = unicode_font, fill = (0,0,0))
-
-
 
 	def RenderToBuffer(self):
 		#render all of variable position boxes here at once

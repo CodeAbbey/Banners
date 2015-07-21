@@ -1,16 +1,12 @@
+import datetime
 import flask
+import json
 import urllib2
 import re
-import time
-from google.appengine.ext import db
-
-import datetime
 import StringIO
-import random
-import json
+import time
 
-from random import randint
-
+from google.appengine.ext import db
 from UserBadge import UserBadge, RankCodeAbbey
 
 app = flask.Flask(__name__)
@@ -51,16 +47,13 @@ def prepare_banner(username):
 		if 'error' in data.keys():
 			return data['error'], 400
 
-		#we nee the rank for the constructor to choose default image
+		#we need the rank for the constructor to choose default image
 		try:
 			rank = int(data['rankNumber'])
 		except KeyError as e:
-			rank = None
+			rank = -1
 
 		user_badge = UserBadge(200, 60, rank)
-		#dirty hack right now to test functioning
-		#user_badge = UserBadge(200, 60, 'default')
-
 		try:
 			country = data['country']
 		except KeyError as e:
@@ -92,7 +85,6 @@ def prepare_banner(username):
 
 		#at end prepare the file
 		f = user_badge.RenderToBuffer()
-
 		response = flask.make_response(f.getvalue())
 		response.headers['Content-Type'] = 'image/png'
 		return response
@@ -109,4 +101,3 @@ def deny_all():
 @app.errorhandler(404)
 def page_not_found(e):
 	return 'Sorry, nothing at this URL.', 404
-
