@@ -1,5 +1,5 @@
-application: codeabbey-banners
-version: 1
+application: code-abbey-banner
+version: 4
 runtime: python27
 api_version: 1
 threadsafe: yes
@@ -13,3 +13,9 @@ libraries:
   version: "2.6"
 - name: markupsafe
   version: "0.15"
+- name: PIL
+  version: "1.1.7"
+
+skip_files:
+- ^(.*/)?\.git.*$
+- ^(.*/)?.*pyc$
