@@ -24,7 +24,14 @@ class UserBadge(object):
 		self.img = Image.new("RGB", (x_size, y_size), '#FFFFFF')
 		self.draw = ImageDraw.Draw(self.img)
 
-		#flag variables to prevent us from overwriting
+		#configure square user image
+		self.tb_size = 75
+		self.tb_x_offset = 10
+		self.tb_y_offset = 35
+
+		#write the code abbey label to the top
+		code_abbey_logo = Image
+
 	def AddUserName(self, name, rank = "default"):
 		#parameters to adjust name location and appearance
 		name_font_size = 30
@@ -37,7 +44,7 @@ class UserBadge(object):
 		(predicted_width, predicted_height) = unicode_font.getsize(name)
 		print predicted_width, predicted_height
 
-		name_x_offset = 30
+		name_x_offset = 90
 		name_y_offest = 30
 
 		self.draw.text((name_x_offset, name_y_offest), name, font = unicode_font, fill = name_font_color)
@@ -63,10 +70,33 @@ class UserBadge(object):
 		 'AE', 'AD', 'AG', 'AF', 'IQ', 'VI', 'IS', 'IR', 'AM', 'AL', 'AO', 'AN', 'AQ', 
 		 'AS', 'AR', 'AU', 'AT', 'IO', 'IN', 'TZ', 'AZ', 'IE', 'ID', 'UA', 'QA', 'MZ'])
 		if country in iso_country_codes:
-			flag_name = 'flags' + country.lower() + '.gif'
-			flag_file = Image.open('flags/us.gif')
+			flag_name = 'flags/' + country.lower() + '.gif'
+			flag_file = Image.open(flag_name)
 			(flag_x,flag_y) = flag_file.size
-			self.img.paste(flag_file, (5, 5, 5+flag_x , 5+flag_y))
+			self.img.paste(flag_file, (375, 45, 375+flag_x , 45+flag_y))
+
+	def AddUserImage(self, url = None):
+		#if there is not any images, use a default
+		if url == None:
+			df_tb = Image.new("RGB", (self.tb_size,self.tb_size), "#FFFFFF")
+			df_tb_draw = ImageDraw.Draw(df_tb)
+
+			r,g,b = randint(0,255), randint(0,255), randint(0,255)
+			dr = (randint(0,255) - r)/self.tb_size
+			dg = (randint(0,255) - g)/self.tb_size
+			db = (randint(0,255) - b)/self.tb_size
+			for i in range(self.tb_size):
+				r,g,b = r+dr, g+dg, b+db
+				df_tb_draw.line((i,0,i,self.tb_size), fill=(int(r),int(g),int(b)))
+
+			self.img.paste(df_tb, (self.tb_x_offset, self.tb_y_offset, self.tb_x_offset+self.tb_size, self.tb_y_offset+self.tb_size))
+		else:
+			#TODO load image and resize
+			pass
+
+	def AddNumSolved(self, num_solved = 0):
+		assert(0 <= num_solved)
+
 
 	def RenderToBuffer(self):
 		f = cStringIO.StringIO()
@@ -125,7 +155,6 @@ def prepare_banner(username):
 			pass
 		else:
 			user_badge.AddCountryFlag(country)
-
 		try:
 			badge_username = data['username']
 		except KeyError as e:
@@ -134,6 +163,8 @@ def prepare_banner(username):
 		else:
 			user_badge.AddUserName(badge_username)
 
+		#add a dummy user pic
+		user_badge.AddUserImage(url = None)
 		#at end prepare the file
 		f = user_badge.RenderToBuffer()
 
