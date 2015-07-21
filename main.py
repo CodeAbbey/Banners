@@ -16,21 +16,6 @@ from UserBadge import UserBadge, RankCodeAbbey
 app = flask.Flask(__name__)
 app.config['DEBUG'] = False
 
-
-ranks_to_enum_dict = {'peasant': RankCodeAbbey.PEASANT, 
-					  'acolyte': RankCodeAbbey.ACOLYTE,
-					  'believer': RankCodeAbbey.BELIEVER,
-					  'follower': RankCodeAbbey.FOLLOWER,
-					  'priest': RankCodeAbbey.PRIEST,
-					  'fanatic': RankCodeAbbey.FANATIC,
-					  'deacon': RankCodeAbbey.DEACON,
-					  'bishop': RankCodeAbbey.BISHOP,
-					  'stargazer': RankCodeAbbey.STARGAZER,
-					  'the doctor': RankCodeAbbey.THE_DOCTOR,
-					  'frost enchanter': RankCodeAbbey.FROST_ENCHANTER,
-					  'cardinal': RankCodeAbbey.CARDINAL
-					 }
-
 @app.route('/')
 def index():
 	return flask.render_template('index.html')
@@ -68,14 +53,9 @@ def prepare_banner(username):
 
 		#we nee the rank for the constructor to choose default image
 		try:
-			rank_str = data['rank'].lower()
+			rank = int(data['rankNumber'])
 		except KeyError as e:
 			rank = None
-		else:
-			try:
-				rank = ranks_to_enum_dict[rank_str]
-			except KeyError as e:
-				rank = None 
 
 		user_badge = UserBadge(200, 60, rank)
 		#dirty hack right now to test functioning

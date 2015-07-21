@@ -43,30 +43,15 @@ class UserBadge(object):
 			RankCodeAbbey.CARDINAL: (135, 0, 170),
 			'default': (0, 0, 0)
 			}
-		#use the rank to determine which default to use
-		rank_default_image_dict = {
-			RankCodeAbbey.PEASANT: 'static/peasant.png',
-			RankCodeAbbey.ACOLYTE: 'static/acolyte.png',
-			RankCodeAbbey.BELIEVER: 'static/believer.png',
-			RankCodeAbbey.FOLLOWER: 'static/follower.png',
-			RankCodeAbbey.PRIEST: 'static/priest.png',
-			RankCodeAbbey.FANATIC: 'static/fanatic.png',
-			RankCodeAbbey.DEACON: 	'static/deacon.png',
-			RankCodeAbbey.BISHOP: 	'static/bishop.png',
-			RankCodeAbbey.STARGAZER: 'static/stargazer.png',
-			RankCodeAbbey.THE_DOCTOR: 'static/the_doctor.png',
-			RankCodeAbbey.FROST_ENCHANTER: 'static/frost_enchanter.png',
-			RankCodeAbbey.CARDINAL: 'static/cardinal.png',
-			'default': 'static/default.png'
-		}	
 
-		try:
-			background_filename = rank_default_image_dict[rank]
-		except KeyError as e:
-			background_filename = rank_default_image_dict['default']
-		finally:
-			self.img = Image.open(background_filename)
-			self.draw = ImageDraw.Draw(self.img)
+		print rank 
+		if RankCodeAbbey.PEASANT <= rank <= RankCodeAbbey.CARDINAL:
+			background_filename = 'static/rank' + str(rank) + '.png'
+		else:
+			background_filename = 'static/default.png'
+
+		self.img = Image.open(background_filename)
+		self.draw = ImageDraw.Draw(self.img)
 
 		#leave this stub in for now	to create arbitrary size images
 		if rank == None:
@@ -157,7 +142,6 @@ class UserBadge(object):
 		#error case num solved is ?
 		text = 'solved: '
 		if num_solved > 0:
-			print num_solved
 			#hold field with to max of 4 chars
 			text += str(num_solved)[-4:]
 
@@ -181,8 +165,6 @@ class UserBadge(object):
 				position = string.replace(position, '+', '')
 			else:
 				position = str(position)
-
-			print position	
 			#hold field with to max of 4 chars
 			text += position[-10:]
 
