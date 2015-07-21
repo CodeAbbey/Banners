@@ -24,10 +24,23 @@ class UserBadge(object):
 		self.img = Image.new("RGB", (x_size, y_size), '#FFFFFF')
 		self.draw = ImageDraw.Draw(self.img)
 
+		self.padding = 5
 		#configure square user image
 		self.tb_size = 75
-		self.tb_x_offset = 10
-		self.tb_y_offset = 35
+		self.tb_x_offset = self.padding
+		self.tb_y_offset = self.padding + 30
+
+		#configure size of flag
+		self.flag_width = 16
+		self.flag_height = 11
+		self.flag_spacing = 5
+
+		#configure size available for user name
+		self.name_x_offset = self.padding + self.tb_size + 10
+		self.username_allowed_width = self.width - self.name_x_offset - self.flag_spacing - self.flag_width - self.padding
+		print "allowed width:", self.username_allowed_width
+		self.username_baseline_offset = self.height * 0.60
+		self.username_height = 35
 
 		#write the code abbey label to the top
 		code_abbey_logo = Image
@@ -40,14 +53,24 @@ class UserBadge(object):
 		#we are using this font just to test since it looks different
 		#than system font, so we can know when it is working
 		unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSerifCondensed-BoldItalic.ttf", name_font_size)
-		#dynamically determine the offset to have a relative placement in image
-		(predicted_width, predicted_height) = unicode_font.getsize(name)
-		print predicted_width, predicted_height
+		while True:
+			#dynamically determine the offset to have a relative placement in image
+			(predicted_width, predicted_height) = unicode_font.getsize(name)
+			print "predicted width:", predicted_width
+			if(predicted_width > self.username_allowed_width):
+				name_font_size -= 2
+				unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSerifCondensed-BoldItalic.ttf", name_font_size)
+				print name_font_size
+			else:
+				self.username_width = predicted_width
+				self.username_height = predicted_height
+				print "new font size of {} chosen".format(name_font_size)
+				break
 
-		name_x_offset = 90
-		name_y_offest = 30
-
-		self.draw.text((name_x_offset, name_y_offest), name, font = unicode_font, fill = name_font_color)
+		#compute the y offset to keep constant baseline position
+		self.name_y_offest = max([0, (self.username_baseline_offset - predicted_height)])
+		
+		self.draw.text((self.name_x_offset, self.name_y_offest), name, font = unicode_font, fill = name_font_color)
 	
 	def AddCountryFlag(self, country):
 		iso_country_codes = set(['BD', 'BE', 'BF', 'BG', 'BA', 'BB', 'WF', 'BM', 'BN', 'BO',
@@ -98,9 +121,12 @@ class UserBadge(object):
 
 	def RenderToBuffer(self):
 		#render all of variable position boxes here at once
+		self.flag_x_offset = int(self.name_x_offset + self.username_width + self.flag_spacing)
+		self.flag_y_offest = int(self.username_baseline_offset - int(self.username_height/2) - int(self.flag_height * 0.3))
+
 		flag_file = Image.open(self.flag_name)
 		(flag_x,flag_y) = flag_file.size
-		self.img.paste(flag_file, (375, 45, 375+flag_x , 45+flag_y))
+		self.img.paste(flag_file, (self.flag_x_offset, self.flag_y_offest, self.flag_x_offset+flag_x , self.flag_y_offest+flag_y))
 
 		#create buffer for output
 		f = cStringIO.StringIO()
