@@ -31,7 +31,6 @@ def prepare_banner(username):
 	try:
 		api_response = urllib2.urlopen(req)
 	except urllib2.HTTPError as e:
-		print e.code
 		return "User with given URL not found", 400
 	except urllib2.URLError as e:
 		#we could not reach the server, so try again in a little bit
@@ -61,6 +60,7 @@ def prepare_banner(username):
 			pass
 		else:
 			user_badge.AddCountryFlag(country)
+
 		try:
 			badge_username = data['username']
 		except KeyError as e:

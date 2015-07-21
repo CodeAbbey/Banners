@@ -143,8 +143,11 @@ class UserBadge(object):
 		self.draw.text((solved_xo, solved_yo), text, font = unicode_font, fill = (96,96,96))
 		end_xo = solved_xo + tmp
 		if num_solved > 0:
-			#hold field with to max of 4 chars
-			text = str(num_solved)[-4:]
+			if(num_solved > 9999):
+				text = '>1e4'
+			else:
+				#hold field with to max of 4 chars
+				text = str(num_solved)
 			unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSans.ttf", 10)
 			self.draw.text((end_xo, solved_yo), text, font = unicode_font, fill = (0,0,0))
 
@@ -164,7 +167,7 @@ class UserBadge(object):
 					position = ">1e100"
 				else:
 					position = "{:.2e}".format(position)
-				#remove the positive exponent
+				#remove the positive exponent character
 				position = string.replace(position, '+', '')
 			else:
 				position = str(position)
