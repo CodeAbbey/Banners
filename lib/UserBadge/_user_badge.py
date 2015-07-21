@@ -110,6 +110,7 @@ class UserBadge(object):
 
         #compute the y offset to keep constant baseline position
         # self.nm_yo = max([0, (self.usernm_baseline_offset - pr_height)])
+        self.nm_yo = (self.pad + (self.usernm_baseline_offset - pr_height))/2
         self.draw.text((self.nm_xo, self.nm_yo), name, 
                         font = unicode_font, fill = nm_fnt_color)
     
@@ -143,7 +144,7 @@ class UserBadge(object):
     def AddNumSolved(self, num_solved = 0):
         #error case num solved is ?
         solved_xo = self.pad
-        solved_yo = int(self.H * 0.45)
+        solved_yo = int(self.H * 0.38)
         text = 'solved: '
         unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSans.ttf", 10)
         (tmp, _) = unicode_font.getsize(text)
@@ -163,7 +164,7 @@ class UserBadge(object):
     def AddPosition(self, position):
         #error case num solved is ?
         solved_xo = self.pad + 65
-        solved_yo = int(self.H * 0.45)     
+        solved_yo = int(self.H * 0.38)     
         text = 'rank: '
         unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSans.ttf", 10)
         (tmp, _) = unicode_font.getsize(text)
