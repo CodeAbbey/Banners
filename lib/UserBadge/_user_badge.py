@@ -34,7 +34,7 @@ class UserBadge(object):
 			RankCodeAbbey.BELIEVER: (0, 221, 221),
 			RankCodeAbbey.FOLLOWER: (68, 68, 255),
 			RankCodeAbbey.PRIEST: (221, 0, 221),
-			RankCodeAbbey.FANATIC: (221, 221, 0),
+			RankCodeAbbey.FANATIC: (255, 196, 0),
 			RankCodeAbbey.DEACON: (255, 153, 17),
 			RankCodeAbbey.BISHOP: (255, 68, 68),
 			RankCodeAbbey.STARGAZER: (68, 68, 255),
