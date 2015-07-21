@@ -63,7 +63,7 @@ class UserBadge(object):
 
 		self.padding = 5
 		#configure square user image
-		self.tb_size = 50
+		self.tb_size = 45
 		self.tb_x_offset = self.width - self.tb_size - self.padding
 		self.tb_y_offset = self.padding
 
@@ -74,6 +74,7 @@ class UserBadge(object):
 
 		#configure size available for user name
 		self.name_x_offset = self.padding
+		self.name_y_offest = self.padding
 		self.username_allowed_width = self.width - self.name_x_offset - self.flag_spacing - self.flag_width - self.padding - self.tb_size - self.padding
 		self.username_baseline_offset = self.height * 0.35
 		self.username_height = 35
@@ -95,7 +96,7 @@ class UserBadge(object):
 			(predicted_width, predicted_height) = unicode_font.getsize(name)
 			if(predicted_width > self.username_allowed_width) and name_font_size > 12:
 				name_font_size -= 1
-				unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSans-Bold.ttf", name_font_size)
+				unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSansCondensed-Bold.ttf", name_font_size)
 			else:
 				#check for case where we have to truncate
 				
@@ -111,7 +112,7 @@ class UserBadge(object):
 				break
 
 		#compute the y offset to keep constant baseline position
-		self.name_y_offest = max([0, (self.username_baseline_offset - predicted_height)])
+		#self.name_y_offest = max([0, (self.username_baseline_offset - predicted_height)])
 		
 		self.draw.text((self.name_x_offset, self.name_y_offest), name, font = unicode_font, fill = name_font_color)
 	
