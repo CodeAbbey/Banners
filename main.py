@@ -332,6 +332,13 @@ def randgradient():
 	response.headers['Content-Type'] = 'image/png'
 	return response
 
+@app.route('/robots.txt', methods=['GET'])
+def deny_all():
+	response = flask.make_response(open('static/robots.txt').read())
+  	response.headers["Content-type"] = "text/plain"
+  	return response
+
 @app.errorhandler(404)
 def page_not_found(e):
 	return 'Sorry, nothing at this URL.', 404
+
