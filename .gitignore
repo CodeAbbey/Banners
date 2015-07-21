@@ -1,4 +1,9 @@
 *.pyc
 *.pyo
 
+static/stubs*
 scratch/*
+
+#ignore the pictures and font files
+tools/*.png
+tools/*.ttf

@@ -97,9 +97,11 @@ def prepare_banner(username):
 			user_badge.AddUserName(badge_username)
 
 		try:
-			solved = data['solved']
+			solved = int(data['solved'])
 		except KeyError as e:
 			user_badge.AddNumSolved(-1)
+		else
+			user_badge.AddNumSolved(solved)
 
 		#at end prepare the file
 		f = user_badge.RenderToBuffer()
