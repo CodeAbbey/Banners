@@ -17,24 +17,15 @@ from random import randint
 app = flask.Flask(__name__)
 app.config['DEBUG'] = False
 
-def run_once(func):
-	def wrapper(*args, **kwargs):
-		if not wrapper.has_run:
-			wrapper.has_run = True
-			return func(*args, **kwargs)
-		else:
-			raise RuntimeError("writing more than once to same field in generated image is arbitrarily prohibited") 
-	wrapper.has_run = False
-	return wrapper
-
 class UserBadge(object):
 	def __init__(self, x_size, y_size):
+		self.width = x_size
+		self.height = y_size
 		self.img = Image.new("RGB", (x_size, y_size), '#FFFFFF')
 		self.draw = ImageDraw.Draw(self.img)
 
 		#flag variables to prevent us from overwriting
-	@run_once
-	def AddUserName(self, name):
+	def AddUserName(self, name, rank = "default"):
 		#parameters to adjust name location and appearance
 		name_font_size = 30
 		name_font_color = (0,0,0)
@@ -51,7 +42,6 @@ class UserBadge(object):
 
 		self.draw.text((name_x_offset, name_y_offest), name, font = unicode_font, fill = name_font_color)
 	
-	@run_once
 	def AddCountryFlag(self, country):
 		iso_country_codes = set(['BD', 'BE', 'BF', 'BG', 'BA', 'BB', 'WF', 'BM', 'BN', 'BO',
 		 'BH', 'BI', 'BJ', 'BT', 'JM', 'BV', 'BW', 'WS', 'BR', 'BS', 'JE', 'BY', 'BZ',
