@@ -26,9 +26,9 @@ class UserBadge(object):
 
 		self.padding = 5
 		#configure square user image
-		self.tb_size = 75
-		self.tb_x_offset = self.padding
-		self.tb_y_offset = self.padding + 40
+		self.tb_size = 50
+		self.tb_x_offset = self.width - self.tb_size - self.padding
+		self.tb_y_offset = self.padding
 
 		#configure size of flag
 		self.flag_width = 16
@@ -36,25 +36,16 @@ class UserBadge(object):
 		self.flag_spacing = 5
 
 		#configure size available for user name
-		self.name_x_offset = self.padding + self.tb_size + 10
-		self.username_allowed_width = self.width - self.name_x_offset - self.flag_spacing - self.flag_width - self.padding
+		self.name_x_offset = self.padding
+		self.username_allowed_width = self.width - self.name_x_offset - self.flag_spacing - self.flag_width - self.padding - self.tb_size - self.padding
 		print "allowed width:", self.username_allowed_width
-		self.username_baseline_offset = self.height * 0.60
+		self.username_baseline_offset = self.height * 0.35
 		self.username_height = 35
 
-		#write the code abbey label to the top
-		code_abbey_logo = Image.open('static/icon.png')
-		(logo_width, logo_height) = code_abbey_logo.size
-		self.img.paste(code_abbey_logo, (self.padding, self.padding, self.padding+logo_width, self.padding + logo_height))
-
-		font = ImageFont.truetype("fonts/dejavu/DejaVuSerifCondensed-BoldItalic.ttf", 26)
-		font_color = (0,153,0)
-		ca_title_x_offset = 2*self.padding + logo_width
-		self.draw.text((ca_title_x_offset, 10 ), 'CodeAbbey.com', font = font, fill = font_color)
 
 	def AddUserName(self, name, rank = "default"):
 		#parameters to adjust name location and appearance
-		name_font_size = 30
+		name_font_size = 16
 		name_font_color = (0,0,0)
 
 		#we are using this font just to test since it looks different
@@ -64,8 +55,12 @@ class UserBadge(object):
 			#dynamically determine the offset to have a relative placement in image
 			(predicted_width, predicted_height) = unicode_font.getsize(name)
 			print "predicted width:", predicted_width
-			if(predicted_width > self.username_allowed_width):
+			if(predicted_width > self.username_allowed_width) and name_font_size > 0:
 				name_font_size -= 2
+				#clamp the output
+				if(name_font_size < 0):
+					name_font_size = 10
+					name = "too long"
 				unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSerifCondensed-BoldItalic.ttf", name_font_size)
 				print name_font_size
 			else:
@@ -129,7 +124,7 @@ class UserBadge(object):
 	def RenderToBuffer(self):
 		#render all of variable position boxes here at once
 		self.flag_x_offset = int(self.name_x_offset + self.username_width + self.flag_spacing)
-		self.flag_y_offest = int(self.username_baseline_offset - int(self.username_height/2) - int(self.flag_height * 0.3))
+		self.flag_y_offest = int(self.username_baseline_offset - int(self.username_height/2) - int(self.flag_height * 0.7))
 
 		flag_file = Image.open(self.flag_name)
 		(flag_x,flag_y) = flag_file.size
@@ -183,7 +178,7 @@ def prepare_banner(username):
 
 		#validate the API
 		api_fields = [""]
-		user_badge = UserBadge(400, 150)
+		user_badge = UserBadge(200, 60)
 		
 		try:
 			country = data['country']
