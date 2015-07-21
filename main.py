@@ -4,6 +4,9 @@ import re
 import time
 from google.appengine.ext import db
 
+import urllib
+import urllib2
+import json
 import datetime
 import StringIO
 import random
@@ -19,13 +22,40 @@ def index():
 	return flask.render_template('index.html')
 
 @app.route('/banner/<username>')
-def foo(username):
-	return "User {}".format(username)
+def prepare_banner(username):
+	#github max user name is 39, and site only has max of 15 
+	MAX_USER_NAME_LEN = 40
+	if len(username) > MAX_USER_NAME_LEN:
+		return "bad request", 400
+	#TODO: More vaidation of username here
+
+	#make a request to code abbey site
+	code_abbey_api = 'http://www.codeabbey.com/index/api_user/'
+
+
+	target_user = code_abbey_api + username
+	print target_user
+
+	req = urllib2.Request(target_user)
+	api_response = urllib2.urlopen(req)
+	print api_response.getcode()
+	if api_response.getcode() != 200:
+		return "service down", 205
+	if api_response.headers.getheader('content-type') == 'application/json':
+		data = json.load(api_response)
+		print "foo"
+		return str(data)
+
+
+	return "hello world"
+	#return "User {}".format(username)
+
 
 @app.route("/simple.png")
 def randgradient():
 	img = Image.new("RGB", (300,300), "#FFFFFF")
 	draw = ImageDraw.Draw(img)
+	flag = Image.open('flags/us.gif')
 
 	r,g,b = randint(0,255), randint(0,255), randint(0,255)
 	dr = (randint(0,255) - r)/300.
@@ -34,6 +64,10 @@ def randgradient():
 	for i in range(300):
 		r,g,b = r+dr, g+dg, b+db
 		draw.line((i,0,i,300), fill=(int(r),int(g),int(b)))
+
+	#paste in the country flag
+	(flag_x,flag_y) = flag.size
+	img.paste(flag, (20, 20, 20+flag_x , 20+flag_y))
 
 	f = cStringIO.StringIO()
 	img.save(f, "PNG")

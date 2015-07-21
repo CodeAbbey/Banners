@@ -1,4 +1,4 @@
-application: codeabbey-banners
+application: code-abbey-banner
 version: 1
 runtime: python27
 api_version: 1
@@ -15,3 +15,7 @@ libraries:
   version: "0.15"
 - name: PIL
   version: "1.1.7"
+
+skip_files:
+- ^(.*/)?\.git.*$
+- ^(.*/)?.*pyc$
