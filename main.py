@@ -10,12 +10,78 @@ import json
 import datetime
 import StringIO
 import random
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 import cStringIO
 from random import randint
 
 app = flask.Flask(__name__)
 app.config['DEBUG'] = False
+
+def run_once(func):
+	def wrapper(*args, **kwargs):
+		if not wrapper.has_run:
+			wrapper.has_run = True
+			return func(*args, **kwargs)
+		else:
+			raise RuntimeError("writing more than once to same field in generated image is arbitrarily prohibited") 
+	wrapper.has_run = False
+	return wrapper
+
+class UserBadge(object):
+	def __init__(self, x_size, y_size):
+		self.img = Image.new("RGB", (x_size, y_size), '#FFFFFF')
+		self.draw = ImageDraw.Draw(self.img)
+
+		#flag variables to prevent us from overwriting
+	@run_once
+	def AddUserName(self, name):
+		#parameters to adjust name location and appearance
+		name_font_size = 30
+		name_font_color = (0,0,0)
+
+		#we are using this font just to test since it looks different
+		#than system font, so we can know when it is working
+		unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSerifCondensed-BoldItalic.ttf", name_font_size)
+		#dynamically determine the offset to have a relative placement in image
+		(predicted_width, predicted_height) = unicode_font.getsize(name)
+		print predicted_width, predicted_height
+
+		name_x_offset = 30
+		name_y_offest = 30
+
+		self.draw.text((name_x_offset, name_y_offest), name, font = unicode_font, fill = name_font_color)
+	
+	@run_once
+	def AddCountryFlag(self, country):
+		iso_country_codes = set(['BD', 'BE', 'BF', 'BG', 'BA', 'BB', 'WF', 'BM', 'BN', 'BO',
+		 'BH', 'BI', 'BJ', 'BT', 'JM', 'BV', 'BW', 'WS', 'BR', 'BS', 'JE', 'BY', 'BZ',
+		 'RU', 'RW', 'RS', 'TL', 'RE', 'TM', 'TJ', 'RO', 'TK', 'GW', 'GU', 'GT', 'GS', 
+		 'GR', 'GQ', 'GP', 'JP', 'GY', 'GG', 'GF', 'GE', 'GD', 'GB', 'GA', 'GN', 'GM', 
+		 'GL', 'GI', 'GH', 'OM', 'TN', 'JO', 'TA', 'HR', 'HT', 'HU', 'HK', 'HN', 'HM', 
+		 'VE', 'PR', 'PW', 'PT', 'KN', 'PY', 'AI', 'PA', 'PF', 'PG', 'PE', 'PK', 'PH', 
+		 'PN', 'PL', 'PM', 'ZM', 'EE', 'EG', 'ZA', 'EC', 'IT', 'VN', 'SB', 'ET', 'SO', 
+		 'ZW', 'KY', 'ES', 'ER', 'ME', 'MD', 'MG', 'MA', 'MC', 'UZ', 'MM', 'ML', 'MO', 
+		 'MN', 'MH', 'MK', 'MU', 'MT', 'MW', 'MV', 'MQ', 'MP', 'MS', 'MR', 'IM', 'UG', 
+		 'MY', 'MX', 'IL', 'FR', 'AW', 'SH', 'AX', 'SJ', 'FI', 'FJ', 'FK', 'FM', 'FO', 
+		 'NI', 'NL', 'NO', 'NA', 'VU', 'NC', 'NE', 'NF', 'NG', 'NZ', 'NP', 'NR', 'NU', 
+		 'CK', 'CI', 'CH', 'CO', 'CN', 'CM', 'CL', 'CC', 'CA', 'CG', 'CF', 'CD', 'CZ', 
+		 'CY', 'CX', 'CR', 'CV', 'CU', 'SZ', 'SY', 'KG', 'KE', 'SR', 'KI', 'KH', 'SV', 
+		 'KM', 'ST', 'SK', 'KR', 'SI', 'KP', 'KW', 'SN', 'SM', 'SL', 'SC', 'KZ', 'SA', 
+		 'SG', 'SE', 'SD', 'DO', 'DM', 'DJ', 'DK', 'VG', 'DE', 'YE', 'DZ', 'US', 'UY', 
+		 'YT', 'UM', 'LB', 'LC', 'LA', 'TV', 'TW', 'TT', 'TR', 'LK', 'LI', 'LV', 'TO', 
+		 'LT', 'LU', 'LR', 'LS', 'TH', 'TF', 'TG', 'TD', 'TC', 'LY', 'VA', 'AC', 'VC', 
+		 'AE', 'AD', 'AG', 'AF', 'IQ', 'VI', 'IS', 'IR', 'AM', 'AL', 'AO', 'AN', 'AQ', 
+		 'AS', 'AR', 'AU', 'AT', 'IO', 'IN', 'TZ', 'AZ', 'IE', 'ID', 'UA', 'QA', 'MZ'])
+		if country in iso_country_codes:
+			flag_name = 'flags' + country.lower() + '.gif'
+			flag_file = Image.open('flags/us.gif')
+			(flag_x,flag_y) = flag_file.size
+			self.img.paste(flag_file, (5, 5, 5+flag_x , 5+flag_y))
+
+	def RenderToBuffer(self):
+		f = cStringIO.StringIO()
+		self.img.save(f, "PNG")
+		return f
 
 @app.route('/')
 def index():
@@ -37,18 +103,56 @@ def prepare_banner(username):
 	print target_user
 
 	req = urllib2.Request(target_user)
-	api_response = urllib2.urlopen(req)
+	try:
+		api_response = urllib2.urlopen(req)
+	except urllib2.HTTPError as e:
+		print e.code
+		return "User with given URL not found", 400
+	except urllib2.URLError as e:
+		#we could not reach the server, so try again in a little bit
+		#TODO: choose a better error code to indicate try again
+		# or set a retry after header
+		return "try again", 500
+
 	print api_response.getcode()
+
 	if api_response.getcode() != 200:
 		return "service down", 205
+
 	if api_response.headers.getheader('content-type') == 'application/json':
 		data = json.load(api_response)
-		print "foo"
-		return str(data)
+		if 'error' in data.keys():
+			return data['error'], 400
 
+		#validate the API
+		api_fields = [""]
+		user_badge = UserBadge(400, 150)
+		
+		try:
+			country = data['country']
+		except KeyError as e:
+			#we do not add a country
+			pass
+		else:
+			user_badge.AddCountryFlag(country)
 
-	return "hello world"
-	#return "User {}".format(username)
+		try:
+			badge_username = data['username']
+		except KeyError as e:
+			#do not add a user name to the badge
+			pass
+		else:
+			user_badge.AddUserName(badge_username)
+
+		#at end prepare the file
+		f = user_badge.RenderToBuffer()
+
+		response = flask.make_response(f.getvalue())
+		response.headers['Content-Type'] = 'image/png'
+		return response
+
+	else:
+		return "hello world"
 
 
 @app.route("/simple.png")
@@ -64,6 +168,7 @@ def randgradient():
 	for i in range(300):
 		r,g,b = r+dr, g+dg, b+db
 		draw.line((i,0,i,300), fill=(int(r),int(g),int(b)))
+
 
 	#paste in the country flag
 	(flag_x,flag_y) = flag.size
