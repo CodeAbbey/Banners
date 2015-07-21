@@ -17,12 +17,87 @@ from random import randint
 app = flask.Flask(__name__)
 app.config['DEBUG'] = False
 
+class RankCodeAbbey(object):
+	PEASANT = 0
+	ACOLYTE = 1
+	BELIEVER = 2
+	FOLLOWER = 3
+	PRIEST = 4
+	FANATIC = 5
+	DEACON = 6
+	BISHOP = 7
+	STARGAZER = 8
+	THE_DOCTOR = 9
+	FROST_ENCHANTER = 10
+	CARDINAL = 11
+
+ranks_to_enum_dict = {'peasant': RankCodeAbbey.PEASANT, 
+					  'acolyte': RankCodeAbbey.ACOLYTE,
+					  'believer': RankCodeAbbey.BELIEVER,
+					  'follower': RankCodeAbbey.FOLLOWER,
+					  'priest': RankCodeAbbey.PRIEST,
+					  'fanatic': RankCodeAbbey.FANATIC,
+					  'deacon': RankCodeAbbey.DEACON,
+					  'bishop': RankCodeAbbey.BISHOP,
+					  'stargazer': RankCodeAbbey.STARGAZER,
+					  'the doctor': RankCodeAbbey.THE_DOCTOR,
+					  'frost enchanter': RankCodeAbbey.FROST_ENCHANTER,
+					  'cardinal': RankCodeAbbey.CARDINAL
+					 }
+
+rank_rgb_color_dict = { RankCodeAbbey.PEASANT: (136, 136, 136),
+						RankCodeAbbey.ACOLYTE: (68, 255, 68),
+						RankCodeAbbey.BELIEVER: (0, 221, 221),
+						RankCodeAbbey.FOLLOWER: (68, 68, 255),
+						RankCodeAbbey.PRIEST: (221, 0, 221),
+						RankCodeAbbey.FANATIC: (221, 221, 0),
+						RankCodeAbbey.DEACON: (255, 153, 17),
+						RankCodeAbbey.BISHOP: (255, 68, 68),
+						RankCodeAbbey.STARGAZER: (68, 68, 255),
+						RankCodeAbbey.THE_DOCTOR: (255, 153, 17),
+						RankCodeAbbey.FROST_ENCHANTER: (0, 204, 238),
+						RankCodeAbbey.CARDINAL: (135, 0, 170),
+						'default': (0, 0, 0)
+				  }
+
+rank_default_image_dict = {
+	RankCodeAbbey.PEASANT: 'static/peasant.png',
+	RankCodeAbbey.ACOLYTE: 'static/acolyte.png',
+	RankCodeAbbey.BELIEVER: 'static/believer.png',
+	RankCodeAbbey.FOLLOWER: 'static/follower.png',
+	RankCodeAbbey.PRIEST: 'static/priest.png',
+	RankCodeAbbey.FANATIC: 'static/fanatic.png',
+	RankCodeAbbey.DEACON: 	'static/deacon.png',
+	RankCodeAbbey.BISHOP: 	'static/bishop.png',
+	RankCodeAbbey.STARGAZER: 'static/stargazer.png',
+	RankCodeAbbey.THE_DOCTOR: 'static/the_doctor.png',
+	RankCodeAbbey.FROST_ENCHANTER: 'static/frost_enchanter.png',
+	RankCodeAbbey.CARDINAL: 'static/cardinal.png',
+	'default': 'static/default.png'
+}	
+
+
 class UserBadge(object):
-	def __init__(self, x_size, y_size):
+	def __init__(self, x_size, y_size, rank = 'default'):
+		self.rank = rank
 		self.width = x_size
 		self.height = y_size
-		self.img = Image.new("RGB", (x_size, y_size), '#FFFFFF')
-		self.draw = ImageDraw.Draw(self.img)
+		#use the rank to determine which default to use
+		try:
+			background_filename = rank_default_image_dict[rank]
+		except KeyError as e:
+			background_filename = rank_default_image_dict['default']
+		finally:
+			self.img = Image.open(background_filename)
+			self.draw = ImageDraw.Draw(self.img)
+
+		#leave this stub in for now	to create arbitrary size images
+		if rank == None:
+			self.img = Image.new("RGB", (x_size, y_size), '#FFFFFF')
+			self.draw = ImageDraw.Draw(self.img)
+			#set this to default for use by the other derived fields
+			self.rank = 'default'
+
 
 		self.padding = 5
 		#configure square user image
@@ -46,7 +121,10 @@ class UserBadge(object):
 	def AddUserName(self, name, rank = "default"):
 		#parameters to adjust name location and appearance
 		name_font_size = 16
-		name_font_color = (0,0,0)
+		try:
+			name_font_color = rank_rgb_color_dict[self.rank]
+		except KeyError as e:
+			name_font_color = (0,0,0)
 
 		#we are using this font just to test since it looks different
 		#than system font, so we can know when it is working
@@ -124,7 +202,11 @@ class UserBadge(object):
 	def RenderToBuffer(self):
 		#render all of variable position boxes here at once
 		self.flag_x_offset = int(self.name_x_offset + self.username_width + self.flag_spacing)
-		self.flag_y_offest = int(self.username_baseline_offset - int(self.username_height/2) - int(self.flag_height * 0.7))
+		#Adjust this parameter to vary the spacing of the flag picture from baseline
+		FLAG_FUDGE_FACTOR = 0.3
+		#self.draw.line((0, self.username_baseline_offset, self.width, self.username_baseline_offset), fill = (0,0,0))
+		self.flag_y_offest = max([0, int(self.username_baseline_offset - int(self.username_height * FLAG_FUDGE_FACTOR)- self.flag_height)])
+
 
 		flag_file = Image.open(self.flag_name)
 		(flag_x,flag_y) = flag_file.size
@@ -176,10 +258,21 @@ def prepare_banner(username):
 		if 'error' in data.keys():
 			return data['error'], 400
 
-		#validate the API
-		api_fields = [""]
-		user_badge = UserBadge(200, 60)
-		
+		#we nee the rank for the constructor to choose default image
+		try:
+			rank_str = data['rank'].lower()
+		except KeyError as e:
+			rank = None
+		else:
+			try:
+				rank = ranks_to_enum_dict[rank_str]
+			except KeyError as e:
+				rank = None 
+
+		user_badge = UserBadge(200, 60, rank)
+		#dirty hack right now to test functioning
+		#user_badge = UserBadge(200, 60, 'default')
+
 		try:
 			country = data['country']
 		except KeyError as e:
