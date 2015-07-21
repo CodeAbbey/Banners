@@ -119,7 +119,7 @@ class UserBadge(object):
 
 	def AddUserName(self, name, rank = "default"):
 		#parameters to adjust name location and appearance
-		name_font_size = 16
+		name_font_size = 14
 		try:
 			name_font_color = rank_rgb_color_dict[self.rank]
 		except KeyError as e:
@@ -129,22 +129,35 @@ class UserBadge(object):
 		#than system font, so we can know when it is working
 		unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSerifCondensed-BoldItalic.ttf", name_font_size)
 		while True:
+			print name_font_size
 			#dynamically determine the offset to have a relative placement in image
 			(predicted_width, predicted_height) = unicode_font.getsize(name)
-			if(predicted_width > self.username_allowed_width) and name_font_size > 0:
-				name_font_size -= 2
+			if(predicted_width > self.username_allowed_width) and name_font_size > 12:
+				name_font_size -= 1
+
 				#clamp the output
 				if(name_font_size < 0):
 					name_font_size = 10
 					name = "too long"
 				unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSerifCondensed-BoldItalic.ttf", name_font_size)
 			else:
+				#check for case where we have to truncate
+				
+				while True:
+					if(predicted_width > self.username_allowed_width) and len(name) > 0:
+						(predicted_width, predicted_height) = unicode_font.getsize(name)
+						#truncate the string by one
+						name = name[:-1]
+					else:
+						break
+
+
 				self.username_width = predicted_width
 				self.username_height = predicted_height
 				break
 
 		#compute the y offset to keep constant baseline position
-		self.name_y_offest = max([0, (self.username_baseline_offset - predicted_height)])
+		self.name_y_offest = max([8, (self.username_baseline_offset - predicted_height)])
 		
 		self.draw.text((self.name_x_offset, self.name_y_offest), name, font = unicode_font, fill = name_font_color)
 	
@@ -244,7 +257,7 @@ def prepare_banner(username):
 		return "service down", 205
 
 	if api_response.headers.getheader('content-type') == 'application/json':
-		data = json.load(api_response)
+		data = json.load(api_response, encoding = 'utf-8')
 		if 'error' in data.keys():
 			return data['error'], 400
 
