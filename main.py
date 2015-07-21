@@ -100,8 +100,15 @@ def prepare_banner(username):
 			solved = int(data['solved'])
 		except KeyError as e:
 			user_badge.AddNumSolved(-1)
-		else
+		else:
 			user_badge.AddNumSolved(solved)
+
+		try:
+			position = int(data['position'])
+		except KeyError as e:
+			user_badge.AddPosition(-1)
+		else:
+			user_badge.AddPosition(position)
 
 		#at end prepare the file
 		f = user_badge.RenderToBuffer()

@@ -4,6 +4,7 @@ import StringIO
 import urllib
 import urllib2
 import json
+import string
 
 from random import randint
 
@@ -152,29 +153,45 @@ class UserBadge(object):
 		if country in iso_country_codes:
 			self.flag_name = 'flags/' + country.lower() + '.gif'
 
-	def AddUserImage(self, url = None):
-		#if there is not any images, use a default
-		if url == None:
-			df_tb = Image.new("RGB", (self.tb_size,self.tb_size), "#FFFFFF")
-			df_tb_draw = ImageDraw.Draw(df_tb)
-
-			r,g,b = randint(0,255), randint(0,255), randint(0,255)
-			dr = (randint(0,255) - r)/self.tb_size
-			dg = (randint(0,255) - g)/self.tb_size
-			db = (randint(0,255) - b)/self.tb_size
-			for i in range(self.tb_size):
-				r,g,b = r+dr, g+dg, b+db
-				df_tb_draw.line((i,0,i,self.tb_size), fill=(int(r),int(g),int(b)))
-
-			self.img.paste(df_tb, (self.tb_x_offset, self.tb_y_offset, self.tb_x_offset+self.tb_size, self.tb_y_offset+self.tb_size))
-		else:
-			#TODO load image and resize
-			pass
-
 	def AddNumSolved(self, num_solved = 0):
 		#error case num solved is ?
-		if num_solved < 0:
-			pass
+		text = 'solved: '
+		if num_solved > 0:
+			print num_solved
+			#hold field with to max of 4 chars
+			text += str(num_solved)[-4:]
+
+		unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSans.ttf", 10)
+		solved_xo = self.padding
+		solved_yo = int(self.height * 0.45)
+		self.draw.text((solved_xo, solved_yo), text, font = unicode_font, fill = (32,32,32))
+
+
+	def AddPosition(self, position):
+				#error case num solved is ?
+		text = 'rank: '
+		if position > 0:
+			#switch to scientific notation if rank is large enough
+			if position > 999999:
+				if(position >= 1e100):
+					position = ">1e100"
+				else:
+					position = "{:.2e}".format(position)
+				#remove the positive exponent
+				position = string.replace(position, '+', '')
+			else:
+				position = str(position)
+
+			print position	
+			#hold field with to max of 4 chars
+			text += position[-10:]
+
+		unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSans.ttf", 10)
+		solved_xo = self.padding + 65
+		solved_yo = int(self.height * 0.45)
+		self.draw.text((solved_xo, solved_yo), text, font = unicode_font, fill = (32,32,32))
+
+
 
 	def RenderToBuffer(self):
 		#render all of variable position boxes here at once
