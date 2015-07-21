@@ -113,7 +113,6 @@ class UserBadge(object):
 		#configure size available for user name
 		self.name_x_offset = self.padding
 		self.username_allowed_width = self.width - self.name_x_offset - self.flag_spacing - self.flag_width - self.padding - self.tb_size - self.padding
-		print "allowed width:", self.username_allowed_width
 		self.username_baseline_offset = self.height * 0.35
 		self.username_height = 35
 
@@ -132,7 +131,6 @@ class UserBadge(object):
 		while True:
 			#dynamically determine the offset to have a relative placement in image
 			(predicted_width, predicted_height) = unicode_font.getsize(name)
-			print "predicted width:", predicted_width
 			if(predicted_width > self.username_allowed_width) and name_font_size > 0:
 				name_font_size -= 2
 				#clamp the output
@@ -140,11 +138,9 @@ class UserBadge(object):
 					name_font_size = 10
 					name = "too long"
 				unicode_font = ImageFont.truetype("fonts/dejavu/DejaVuSerifCondensed-BoldItalic.ttf", name_font_size)
-				print name_font_size
 			else:
 				self.username_width = predicted_width
 				self.username_height = predicted_height
-				print "new font size of {} chosen".format(name_font_size)
 				break
 
 		#compute the y offset to keep constant baseline position
@@ -231,11 +227,7 @@ def prepare_banner(username):
 
 	#make a request to code abbey site
 	code_abbey_api = 'http://www.codeabbey.com/index/api_user/'
-
-
 	target_user = code_abbey_api + username
-	print target_user
-
 	req = urllib2.Request(target_user)
 	try:
 		api_response = urllib2.urlopen(req)
@@ -247,8 +239,6 @@ def prepare_banner(username):
 		#TODO: choose a better error code to indicate try again
 		# or set a retry after header
 		return "try again", 500
-
-	print api_response.getcode()
 
 	if api_response.getcode() != 200:
 		return "service down", 205
