@@ -42,13 +42,15 @@ class UserBadge(object):
             'default': (0, 0, 0)
             }
 
-        if RankCodeAbbey.PEASANT <= rank <= RankCodeAbbey.CARDINAL:
-            background_filename = 'static/rank' + str(rank) + '.png'
-        else:
-            background_filename = 'static/default.png'
-
+        background_filename = 'static/default.png'
+        
         self.img = Image.open(background_filename)
+        if RankCodeAbbey.PEASANT <= rank <= RankCodeAbbey.CARDINAL:
+            rank_filename = 'static/rank' + str(rank) + '.png'
+            rank_image = Image.open('static/rank' + str(rank) + '.png')
+            self.img.paste(rank_image, (136, 2))
         self.draw = ImageDraw.Draw(self.img)
+
 
         #leave this stub in for now to create arbitrary size images
         if rank == None:
