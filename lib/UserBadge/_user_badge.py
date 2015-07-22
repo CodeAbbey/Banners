@@ -25,6 +25,7 @@ class UserBadge(object):
         self.rank = rank
         self.W = x_size
         self.H = y_size
+        self.flag_name = None
         #store the colors
         self.rank_rgb_color_dict = { RankCodeAbbey.PEASANT: (136, 136, 136),
             RankCodeAbbey.ACOLYTE: (68, 255, 68),
@@ -140,6 +141,8 @@ class UserBadge(object):
             'AZ', 'IE', 'ID', 'UA', 'QA', 'MZ'])
         if country in iso_country_codes:
             self.flag_name = 'flags/' + country.lower() + '.gif'
+        else:
+            self.flag_name = 'flags/zz.gif'
 
     def AddNumSolved(self, num_solved = 0):
         #error case num solved is ?
